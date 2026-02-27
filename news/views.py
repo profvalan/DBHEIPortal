@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from .models import NewsItem, NewsImage, SDGGoal, NewsCategory
 from .forms import NewsItemForm, AdminReviewForm
 from .serializers import NewsItemSerializer
+from institutions.models import Institution
 
 
 # ── Public views ──────────────────────────────
@@ -19,10 +20,12 @@ def home(request):
     ).prefetch_related('sdg_goals')[:9]
     sdg_goals = SDGGoal.objects.all()
     categories = NewsCategory.objects.all()
+    institution_count = Institution.objects.filter(is_active=True).count()
     return render(request, 'news/home.html', {
         'latest_news': latest,
         'sdg_goals': sdg_goals,
         'categories': categories,
+        'institution_count': institution_count,
     })
 
 

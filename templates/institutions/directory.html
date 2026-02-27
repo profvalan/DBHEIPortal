@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block title %}Institutions - PREMs Portal{% endblock %}
+
+{% block content %}
+<!-- Banner with aggregate stats -->
+<div class="hero-banner text-white py-4">
+  <div class="container">
+    <h1 class="h3 fw-bold mb-3"><i class="bi bi-buildings me-2"></i>Our Institutions</h1>
+    <div class="row g-3">
+      <div class="col-6 col-md-3 col-lg">
+        <div class="bg-white bg-opacity-10 rounded p-3 text-center">
+          <div class="fs-3 fw-bold">{{ total_institutions }}</div>
+          <div class="small opacity-75">Institutions</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 col-lg">
+        <div class="bg-white bg-opacity-10 rounded p-3 text-center">
+          <div class="fs-3 fw-bold">{{ aggregate.total_students|default:"0" }}</div>
+          <div class="small opacity-75">Total Students</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 col-lg">
+        <div class="bg-white bg-opacity-10 rounded p-3 text-center">
+          <div class="fs-3 fw-bold">{{ aggregate.total_faculty|default:"0" }}</div>
+          <div class="small opacity-75">Total Faculty</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 col-lg">
+        <div class="bg-white bg-opacity-10 rounded p-3 text-center">
+          <div class="fs-3 fw-bold">{{ aggregate.total_programs|default:"0" }}</div>
+          <div class="small opacity-75">Programs</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 col-lg">
+        <div class="bg-white bg-opacity-10 rounded p-3 text-center">
+          <div class="fs-3 fw-bold">{{ aggregate.total_research|default:"0" }}</div>
+          <div class="small opacity-75">Research Papers</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container py-4">
+  <!-- Filters -->
+  <form method="get" class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label small fw-semibold">Search</label>
+          <input type="text" name="q" value="{{ q }}" class="form-control form-control-sm" placeholder="Name or place...">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small fw-semibold">Province</label>
+          <select name="province" class="form-select form-select-sm">
+            <option value="">All Provinces</option>
+            {% for code, label in province_choices %}
+            <option value="{{ code }}" {% if province == code %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small fw-semibold">Category</label>
+          <select name="category" class="form-select form-select-sm">
+            <option value="">All Categories</option>
+            {% for code, label in category_choices %}
+            <option value="{{ code }}" {% if category == code %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small fw-semibold">Type</label>
+          <select name="type" class="form-select form-select-sm">
+            <option value="">All Types</option>
+            {% for code, label in type_choices %}
+            <option value="{{ code }}" {% if inst_type == code %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+          <button type="submit" class="btn btn-primary btn-sm flex-fill">Filter</button>
+          {% if q or province or category or inst_type %}
+          <a href="{% url 'institutions:directory' %}" class="btn btn-outline-secondary btn-sm">Clear</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <p class="text-muted small mb-3">{{ page_obj.paginator.count }} institution{{ page_obj.paginator.count|pluralize }}</p>
+
+  {% if page_obj.object_list %}
+  <div class="row g-3">
+    {% for inst in page_obj %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 border-0 shadow-sm news-card">
+        <div class="card-body">
+          <div class="d-flex align-items-start mb-3">
+            {% if inst.logo %}
+            <img src="{{ inst.logo.url }}" class="me-3 rounded" style="width:50px;height:50px;object-fit:contain" alt="">
+            {% else %}
+            <div class="me-3 rounded bg-primary bg-opacity-10 d-flex align-items-center justify-content-center"
+                 style="width:50px;height:50px;min-width:50px">
+              <i class="bi bi-building text-primary fs-5"></i>
+            </div>
+            {% endif %}
+            <div>
+              <h6 class="fw-bold mb-1">
+                <a href="{% url 'institutions:detail' inst.pk %}" class="text-decoration-none text-dark">
+                  {{ inst.name }}
+                </a>
+              </h6>
+              <div class="small text-muted">
+                <i class="bi bi-geo-alt me-1"></i>{{ inst.place }}{% if inst.province %}, {{ inst.province }}{% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex flex-wrap gap-1 mb-3">
+            {% if inst.foundation_year %}
+            <span class="badge bg-light text-dark border">Est. {{ inst.foundation_year }}</span>
+            {% endif %}
+            {% if inst.institution_category %}
+            <span class="badge bg-primary bg-opacity-10 text-primary border">{{ inst.get_institution_category_display }}</span>
+            {% endif %}
+            {% if inst.institution_type %}
+            <span class="badge bg-success bg-opacity-10 text-success border">{{ inst.get_institution_type_display }}</span>
+            {% endif %}
+          </div>
+
+          {% with stats=inst.stats %}
+          {% if stats and stats.total_students > 0 %}
+          <div class="row g-2 text-center">
+            <div class="col-4">
+              <div class="fw-bold text-primary">{{ stats.total_students }}</div>
+              <div class="text-muted" style="font-size:0.65rem">Students</div>
+            </div>
+            <div class="col-4">
+              <div class="fw-bold text-primary">{{ stats.total_faculty }}</div>
+              <div class="text-muted" style="font-size:0.65rem">Faculty</div>
+            </div>
+            <div class="col-4">
+              <div class="fw-bold text-primary">{{ stats.total_programs }}</div>
+              <div class="text-muted" style="font-size:0.65rem">Programs</div>
+            </div>
+          </div>
+          {% endif %}
+          {% endwith %}
+        </div>
+        <div class="card-footer bg-white border-0 pt-0">
+          <div class="d-flex justify-content-between align-items-center">
+            <a href="{% url 'institutions:detail' inst.pk %}" class="btn btn-outline-primary btn-sm">View Details</a>
+            {% if inst.website %}
+            <a href="{{ inst.website }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-globe"></i>
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if page_obj.has_other_pages %}
+  <nav class="mt-4">
+    <ul class="pagination justify-content-center">
+      {% if page_obj.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&province={{ province }}&category={{ category }}&type={{ inst_type }}&q={{ q }}">Prev</a></li>
+      {% endif %}
+      {% for num in page_obj.paginator.page_range %}
+      <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+        <a class="page-link" href="?page={{ num }}&province={{ province }}&category={{ category }}&type={{ inst_type }}&q={{ q }}">{{ num }}</a>
+      </li>
+      {% endfor %}
+      {% if page_obj.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&province={{ province }}&category={{ category }}&type={{ inst_type }}&q={{ q }}">Next</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+
+  {% else %}
+  <div class="text-center py-5 text-muted">
+    <i class="bi bi-building" style="font-size:3rem;opacity:0.3"></i>
+    <p class="mt-3">No institutions found.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

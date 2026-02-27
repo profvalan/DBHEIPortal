@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ institution.name }} - PREMs Portal{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'institutions:directory' %}">Institutions</a></li>
+      <li class="breadcrumb-item active">{{ institution.name|truncatechars:40 }}</li>
+    </ol>
+  </nav>
+
+  <div class="row g-4">
+    <!-- Main content -->
+    <div class="col-lg-8">
+      <!-- Header -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-start gap-3 mb-3">
+            {% if institution.logo %}
+            <img src="{{ institution.logo.url }}" class="rounded" style="width:80px;height:80px;object-fit:contain" alt="">
+            {% else %}
+            <div class="rounded bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width:80px;height:80px;min-width:80px">
+              <i class="bi bi-building text-primary" style="font-size:2rem"></i>
+            </div>
+            {% endif %}
+            <div>
+              <h1 class="h4 fw-bold mb-1">{{ institution.name }}</h1>
+              <div class="text-muted">
+                <i class="bi bi-geo-alt me-1"></i>{{ institution.place }}{% if institution.province %}, {{ institution.province }}{% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2 mb-3">
+            {% if institution.foundation_year %}
+            <span class="badge bg-light text-dark border"><i class="bi bi-calendar me-1"></i>Est. {{ institution.foundation_year }}</span>
+            {% endif %}
+            {% if institution.institution_category %}
+            <span class="badge bg-primary bg-opacity-10 text-primary border">{{ institution.get_institution_category_display }}</span>
+            {% endif %}
+            {% if institution.institution_type %}
+            <span class="badge bg-success bg-opacity-10 text-success border">{{ institution.get_institution_type_display }}</span>
+            {% endif %}
+            {% if institution.province %}
+            <span class="badge bg-warning bg-opacity-10 text-warning border"><i class="bi bi-pin-map me-1"></i>{{ institution.province }}</span>
+            {% endif %}
+          </div>
+
+          {% if institution.description %}
+          <p class="mb-3">{{ institution.description|linebreaks }}</p>
+          {% endif %}
+
+          <div class="d-flex flex-wrap gap-2">
+            {% if institution.website %}
+            <a href="{{ institution.website }}" target="_blank" class="btn btn-outline-primary btn-sm">
+              <i class="bi bi-globe me-1"></i>Visit Website
+            </a>
+            {% endif %}
+            {% if institution.contact_email %}
+            <a href="mailto:{{ institution.contact_email }}" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-envelope me-1"></i>{{ institution.contact_email }}
+            </a>
+            {% endif %}
+            {% if institution.contact_phone %}
+            <span class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-telephone me-1"></i>{{ institution.contact_phone }}
+            </span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Statistics -->
+      {% if stats %}
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+          <h5 class="fw-bold mb-0"><i class="bi bi-bar-chart me-2 text-primary"></i>Institution Statistics</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            {% if stats.total_students %}
+            <div class="col-6 col-md-4 col-lg-3">
+              <div class="text-center p-3 bg-primary bg-opacity-10 rounded">
+                <div class="fs-4 fw-bold text-primary">{{ stats.total_students }}</div>
+                <div class="small text-muted">Students</div>
+              </div>
+            </div>
+            {% endif %}
+            {% if stats.total_faculty %}
+            <div class="col-6 col-md-4 col-lg-3">
+              <div class="text-center p-3 bg-success bg-opacity-10 rounded">
+                <div class="fs-4 fw-bold text-success">{{ stats.total_faculty }}</div>
+                <div class="small text-muted">Faculty</div>
+              </div>
+            </div>
+            {% endif %}
+            {% if stats.total_programs %}
+            <div class="col-6 col-md-4 col-lg-3">
+              <div class="text-center p-3 bg-info bg-opacity-10 rounded">
+                <div class="fs-4 fw-bold text-info">{{ stats.total_programs }}</div>
+                <div class="small text-muted">Programs</div>
+              </div>
+            </div>
+            {% endif %}
+            {% if stats.total_departments %}
+            <div class="col-6 col-md-4 col-lg-3">
+              <div class="text-center p-3 bg-warning bg-opacity-10 rounded">
+                <div class="fs-4 fw-bold text-warning">{{ stats.total_departments }}</div>
+                <div class="small text-muted">Departments</div>
+              </div>
+            </div>
+            {% endif %}
+            {% if stats.phd_holders %}
+            <div class="col-6 col-md-4 col-lg-3">
+              <div class="text-center p-3 bg-danger bg-opacity-10 rounded">
+                <div class="fs-4 fw-bold text-danger">{{ stats.phd_holders }}</div>
+                <div class="small text-muted">PhD Holders</div>
+              </div>
+            </div>
+            {% endif %}
+            {% if stats.research_papers %}
+            <div class="col-6 col-md-4 col-lg-3">
+              <div class="text-center p-3 bg-secondary bg-opacity-10 rounded">
+                <div class="fs-4 fw-bold text-secondary">{{ stats.research_papers }}</div>
+                <div class="small text-muted">Research Papers</div>
+              </div>
+            </div>
+            {% endif %}
+            {% if stats.labs %}
+            <div class="col-6 col-md-4 col-lg-3">
+              <div class="text-center p-3 bg-dark bg-opacity-10 rounded">
+                <div class="fs-4 fw-bold">{{ stats.labs }}</div>
+                <div class="small text-muted">Laboratories</div>
+              </div>
+            </div>
+            {% endif %}
+            {% if stats.library_books %}
+            <div class="col-6 col-md-4 col-lg-3">
+              <div class="text-center p-3 bg-primary bg-opacity-10 rounded">
+                <div class="fs-4 fw-bold text-primary">{{ stats.library_books }}</div>
+                <div class="small text-muted">Library Books</div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+
+          {% if stats.naac_grade or stats.placement_rate or stats.campus_area_acres or stats.hostels %}
+          <hr>
+          <div class="row g-3">
+            {% if stats.naac_grade %}
+            <div class="col-md-3"><strong>NAAC Grade:</strong> {{ stats.naac_grade }}</div>
+            {% endif %}
+            {% if stats.placement_rate %}
+            <div class="col-md-3"><strong>Placement Rate:</strong> {{ stats.placement_rate }}%</div>
+            {% endif %}
+            {% if stats.campus_area_acres %}
+            <div class="col-md-3"><strong>Campus Area:</strong> {{ stats.campus_area_acres }} acres</div>
+            {% endif %}
+            {% if stats.hostels %}
+            <div class="col-md-3"><strong>Hostels:</strong> {{ stats.hostels }}</div>
+            {% endif %}
+          </div>
+          {% endif %}
+
+          <div class="text-muted small mt-3"><i class="bi bi-clock me-1"></i>Last updated: {{ stats.updated_at|date:"d M Y" }}</div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Recent news -->
+      {% if recent_news %}
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+          <h5 class="fw-bold mb-0"><i class="bi bi-newspaper me-2 text-primary"></i>Recent News</h5>
+        </div>
+        <div class="card-body p-0">
+          {% for item in recent_news %}
+          <a href="{{ item.get_absolute_url }}" class="d-block text-decoration-none text-dark p-3 border-bottom {% if forloop.last %}border-0{% endif %}">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="fw-semibold">{{ item.title|truncatechars:70 }}</div>
+                <div class="small text-muted mt-1">{{ item.summary|truncatechars:100 }}</div>
+              </div>
+              <small class="text-muted ms-3 text-nowrap">{{ item.published_at|date:"d M Y" }}</small>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+      <!-- Quick info card -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+          <h6 class="fw-bold mb-0"><i class="bi bi-info-circle me-2 text-primary"></i>Quick Info</h6>
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-sm mb-0">
+            <tbody>
+              {% if institution.foundation_year %}
+              <tr><td class="text-muted px-3">Founded</td><td class="fw-semibold px-3">{{ institution.foundation_year }}</td></tr>
+              {% endif %}
+              {% if institution.province %}
+              <tr><td class="text-muted px-3">Province</td><td class="fw-semibold px-3">{{ institution.province }}</td></tr>
+              {% endif %}
+              {% if institution.place %}
+              <tr><td class="text-muted px-3">Place</td><td class="fw-semibold px-3">{{ institution.place }}</td></tr>
+              {% endif %}
+              {% if institution.institution_category %}
+              <tr><td class="text-muted px-3">Category</td><td class="fw-semibold px-3">{{ institution.get_institution_category_display }}</td></tr>
+              {% endif %}
+              {% if institution.institution_type %}
+              <tr><td class="text-muted px-3">Type</td><td class="fw-semibold px-3">{{ institution.get_institution_type_display }}</td></tr>
+              {% endif %}
+              {% if institution.website %}
+              <tr><td class="text-muted px-3">Website</td><td class="px-3"><a href="{{ institution.website }}" target="_blank" class="small">{{ institution.website|truncatechars:35 }}</a></td></tr>
+              {% endif %}
+              {% if institution.address %}
+              <tr><td class="text-muted px-3">Address</td><td class="px-3 small">{{ institution.address }}</td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {% if stats.naac_grade %}
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body text-center">
+          <div class="fs-1 fw-bold text-primary">{{ stats.naac_grade }}</div>
+          <div class="text-muted">NAAC Grade</div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
