@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - PREMs Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 px-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-shield-check me-2 text-primary"></i>Admin Dashboard</h4>
+    <a href="{% url 'news:admin_all_news' %}" class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-grid me-1"></i>All Articles
+    </a>
+  </div>
+
+  <!-- Stats -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm text-center p-3 border-start border-5 border-warning">
+        <div class="fs-2 fw-bold text-warning">{{ stats.pending }}</div>
+        <div class="small text-muted">Pending Review</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm text-center p-3 border-start border-5 border-success">
+        <div class="fs-2 fw-bold text-success">{{ stats.approved }}</div>
+        <div class="small text-muted">Published</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm text-center p-3 border-start border-5 border-danger">
+        <div class="fs-2 fw-bold text-danger">{{ stats.rejected }}</div>
+        <div class="small text-muted">Rejected</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm text-center p-3 border-start border-5 border-primary">
+        <div class="fs-2 fw-bold text-primary">{{ stats.total }}</div>
+        <div class="small text-muted">Total Articles</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending items -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3 d-flex align-items-center">
+      <h6 class="fw-bold mb-0 me-2"><i class="bi bi-hourglass-split me-2 text-warning"></i>Pending Approval</h6>
+      {% if stats.pending > 0 %}
+      <span class="badge bg-warning text-dark">{{ stats.pending }}</span>
+      {% endif %}
+    </div>
+    <div class="card-body p-0">
+      {% if pending_items %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Title</th>
+              <th>Institution</th>
+              <th>SDG Goals</th>
+              <th>Submitted</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in pending_items %}
+            <tr>
+              <td>
+                <div class="fw-semibold small">{{ item.title|truncatechars:60 }}</div>
+                {% if item.category %}<small class="text-muted">{{ item.category }}</small>{% endif %}
+              </td>
+              <td class="small">
+                <i class="bi bi-building me-1 text-muted"></i>{{ item.institution.name|truncatechars:35 }}
+              </td>
+              <td>
+                {% for sdg in item.sdg_goals.all|slice:":3" %}
+                <span class="badge me-1" style="background-color:{{ sdg.get_color }};font-size:0.62rem">SDG {{ sdg.number }}</span>
+                {% endfor %}
+              </td>
+              <td class="small text-muted">{{ item.submitted_at|date:"d M Y H:i" }}</td>
+              <td>
+                <a href="{% url 'news:admin_review' item.pk %}" class="btn btn-primary btn-sm">
+                  <i class="bi bi-eye me-1"></i>Review
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-check-circle" style="font-size:2.5rem;opacity:0.3;color:green"></i>
+        <p class="mt-3">No articles pending review.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

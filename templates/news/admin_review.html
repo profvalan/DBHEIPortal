@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Review: {{ news.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-center mb-4">
+    <a href="{% url 'news:admin_dashboard' %}" class="btn btn-outline-secondary btn-sm me-3">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <h4 class="fw-bold mb-0">Review Article</h4>
+  </div>
+
+  <div class="row g-4">
+    <!-- Article preview -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="mb-3">
+            {% for sdg in news.sdg_goals.all %}
+            <span class="badge me-1" style="background-color:{{ sdg.get_color }}">SDG {{ sdg.number }}</span>
+            {% endfor %}
+          </div>
+          <h2 class="h4 fw-bold">{{ news.title }}</h2>
+          <p class="text-muted small mb-3">
+            <i class="bi bi-building me-1"></i>{{ news.institution.name }}
+            {% if news.category %} &bull; {{ news.category.name }}{% endif %}
+            &bull; Submitted {{ news.submitted_at|date:"d M Y H:i" }}
+          </p>
+          {% if news.featured_image %}
+          <img src="{{ news.featured_image.url }}" class="img-fluid rounded mb-4 w-100" style="max-height:350px;object-fit:cover">
+          {% endif %}
+          <div class="bg-light rounded p-3 mb-4 border-start border-4 border-primary">
+            <strong>Summary:</strong> {{ news.summary }}
+          </div>
+          <div class="article-content">{{ news.content|linebreaks }}</div>
+          {% if embed_url %}
+          <div class="ratio ratio-16x9 mt-4 rounded overflow-hidden">
+            <iframe src="{{ embed_url }}" allowfullscreen></iframe>
+          </div>
+          {% endif %}
+          {% if news.images.all %}
+          <hr>
+          <h6 class="fw-bold">Gallery Images</h6>
+          <div class="row g-2">
+            {% for img in news.images.all %}
+            <div class="col-4">
+              <img src="{{ img.image.url }}" class="img-fluid rounded" style="height:120px;object-fit:cover;width:100%">
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Review panel -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm sticky-top" style="top:80px">
+        <div class="card-header bg-white py-3">
+          <h6 class="fw-bold mb-0"><i class="bi bi-clipboard-check me-2"></i>Review Decision</h6>
+        </div>
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+            {% crispy form %}
+          </form>
+        </div>
+        <div class="card-footer bg-white border-0">
+          <div class="bg-light rounded p-3 small text-muted">
+            <strong>Institution:</strong> {{ news.institution.name }}<br>
+            <strong>Contact:</strong> {{ news.institution.contact_email|default:"—" }}<br>
+            <strong>Current Status:</strong>
+            <span class="badge bg-warning text-dark">{{ news.get_status_display }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

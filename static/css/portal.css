@@ -1,0 +1,93 @@
+/* PREMs News Portal - Main Stylesheet */
+
+:root {
+  --primary: #0d47a1;
+  --primary-light: #1565c0;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-color: #f8f9fa;
+}
+
+/* Hero Banner */
+.hero-banner {
+  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 50%, #42a5f5 100%);
+}
+
+/* News Cards */
+.news-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.news-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.12) !important;
+}
+
+/* SDG Cards */
+.sdg-card {
+  transition: transform 0.15s, opacity 0.15s;
+  border-radius: 8px;
+  min-height: 80px;
+}
+.sdg-card:hover {
+  transform: scale(1.04);
+  opacity: 0.92;
+}
+
+/* SDG Badge hover */
+.sdg-badge {
+  transition: opacity 0.15s;
+}
+.sdg-badge:hover {
+  opacity: 0.85;
+}
+
+/* Article content */
+.article-content {
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: #333;
+}
+.article-content p { margin-bottom: 1.2rem; }
+
+/* Table improvements */
+.table td, .table th {
+  vertical-align: middle;
+}
+
+/* Dashboard stat cards */
+.card .fs-2 {
+  line-height: 1;
+}
+
+/* Form improvements */
+.form-control:focus, .form-select:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+/* Scrollable sidebar table */
+@media (max-width: 768px) {
+  .sticky-top { position: relative !important; top: 0 !important; }
+}
+
+/* Status badges */
+.badge.bg-success { background-color: #198754 !important; }
+.badge.bg-warning  { background-color: #ffc107 !important; }
+.badge.bg-danger   { background-color: #dc3545 !important; }
+.badge.bg-secondary{ background-color: #6c757d !important; }
+
+/* Pagination active */
+.page-item.active .page-link {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+/* Embed iframe */
+iframe { border: none; }
+
+/* Print */
+@media print {
+  .navbar, footer, .btn, nav.breadcrumb { display: none !important; }
+}

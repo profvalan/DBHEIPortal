@@ -1,0 +1,6 @@
+Django==5.2.11
+Pillow==12.1.1
+djangorestframework==3.16.1
+django-crispy-forms==2.5
+crispy-bootstrap5==2025.6
+python-decouple==3.8

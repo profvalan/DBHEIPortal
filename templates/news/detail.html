@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ item.title }} - PREMs Portal{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <!-- Breadcrumb -->
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'news:list' %}">News</a></li>
+          <li class="breadcrumb-item active">{{ item.title|truncatechars:40 }}</li>
+        </ol>
+      </nav>
+
+      <!-- SDG Badges -->
+      {% if item.sdg_goals.all %}
+      <div class="mb-3">
+        {% for sdg in item.sdg_goals.all %}
+        <a href="{% url 'news:sdg_news' sdg.number %}"
+           class="badge text-decoration-none me-1"
+           style="background-color:{{ sdg.get_color }};padding:6px 14px">
+          SDG {{ sdg.number }} - {{ sdg }}
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <h1 class="h2 fw-bold mb-3">{{ item.title }}</h1>
+
+      <div class="d-flex align-items-center gap-3 text-muted small mb-4">
+        <span><i class="bi bi-building me-1"></i>{{ item.institution.name }}</span>
+        {% if item.category %}
+        <span><i class="bi bi-tag me-1"></i>{{ item.category.name }}</span>
+        {% endif %}
+        <span><i class="bi bi-calendar me-1"></i>{{ item.published_at|date:"d F Y" }}</span>
+      </div>
+
+      <!-- Featured image -->
+      {% if item.featured_image %}
+      <img src="{{ item.featured_image.url }}" class="img-fluid rounded mb-4 w-100"
+           style="max-height:450px;object-fit:cover" alt="{{ item.title }}">
+      {% endif %}
+
+      <!-- Summary -->
+      <p class="lead text-muted border-start border-4 border-primary ps-3 mb-4">{{ item.summary }}</p>
+
+      <!-- Content -->
+      <div class="article-content mb-4">{{ item.content|linebreaks }}</div>
+
+      <!-- Video embed -->
+      {% if embed_url %}
+      <div class="ratio ratio-16x9 mb-4 rounded overflow-hidden shadow-sm">
+        <iframe src="{{ embed_url }}" allowfullscreen title="Video"></iframe>
+      </div>
+      {% endif %}
+
+      <!-- Gallery -->
+      {% if item.images.all %}
+      <h5 class="fw-semibold mb-3"><i class="bi bi-images me-2"></i>Gallery</h5>
+      <div class="row g-2 mb-4">
+        {% for img in item.images.all %}
+        <div class="col-4">
+          <img src="{{ img.image.url }}" class="img-fluid rounded" style="height:140px;object-fit:cover;width:100%" alt="{{ img.caption }}">
+          {% if img.caption %}<p class="small text-muted mt-1 mb-0">{{ img.caption }}</p>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Share bar -->
+      <div class="bg-light rounded p-3 d-flex align-items-center gap-2 flex-wrap">
+        <span class="fw-semibold small me-2">Share:</span>
+        <a href="https://twitter.com/intent/tweet?text={{ item.title|urlencode }}&url={{ request.build_absolute_uri }}"
+           target="_blank" class="btn btn-sm btn-outline-secondary">
+          <i class="bi bi-twitter-x me-1"></i>X / Twitter
+        </a>
+        <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}"
+           target="_blank" class="btn btn-sm btn-outline-secondary">
+          <i class="bi bi-linkedin me-1"></i>LinkedIn
+        </a>
+        <button class="btn btn-sm btn-outline-secondary" onclick="navigator.clipboard.writeText(window.location.href);this.textContent='Copied!'">
+          <i class="bi bi-link-45deg me-1"></i>Copy Link
+        </button>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+      <!-- Institution card -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3"><i class="bi bi-building me-2 text-primary"></i>About the Institution</h6>
+          {% if item.institution.logo %}
+          <img src="{{ item.institution.logo.url }}" alt="{{ item.institution.name }}" class="img-fluid mb-3" style="max-height:80px">
+          {% endif %}
+          <p class="fw-semibold mb-1">{{ item.institution.name }}</p>
+          {% if item.institution.description %}
+          <p class="small text-muted">{{ item.institution.description|truncatechars:150 }}</p>
+          {% endif %}
+          {% if item.institution.website %}
+          <a href="{{ item.institution.website }}" target="_blank" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-globe me-1"></i>Visit Website
+          </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- SDG Goals card -->
+      {% if item.sdg_goals.all %}
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3"><i class="bi bi-globe me-2 text-primary"></i>SDG Alignment</h6>
+          {% for sdg in item.sdg_goals.all %}
+          <a href="{% url 'news:sdg_news' sdg.number %}"
+             class="d-flex align-items-center text-decoration-none mb-2 p-2 rounded"
+             style="background-color:{{ sdg.get_color }}15;border-left:4px solid {{ sdg.get_color }}">
+            <span class="badge me-2" style="background-color:{{ sdg.get_color }}">{{ sdg.number }}</span>
+            <span class="small fw-semibold text-dark">{{ sdg }}</span>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Related news -->
+      {% if related %}
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3"><i class="bi bi-collection me-2 text-primary"></i>More from this Institution</h6>
+          {% for r in related %}
+          <div class="mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+            <a href="{{ r.get_absolute_url }}" class="text-decoration-none text-dark small fw-semibold">{{ r.title|truncatechars:60 }}</a>
+            <div class="text-muted" style="font-size:0.7rem">{{ r.published_at|date:"d M Y" }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

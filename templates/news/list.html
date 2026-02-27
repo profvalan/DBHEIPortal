@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}News - PREMs Portal{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row g-4">
+    <!-- Sidebar filters -->
+    <div class="col-lg-3">
+      <div class="card border-0 shadow-sm sticky-top" style="top:80px">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3"><i class="bi bi-funnel me-2"></i>Filter News</h6>
+          <form method="get">
+            <div class="mb-3">
+              <input type="text" name="q" value="{{ q }}" class="form-control form-control-sm" placeholder="Search...">
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Category</label>
+              <select name="category" class="form-select form-select-sm">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                <option value="{{ cat.slug }}" {% if category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">SDG Goal</label>
+              <select name="sdg" class="form-select form-select-sm">
+                <option value="">All SDGs</option>
+                {% for goal in sdg_goals %}
+                <option value="{{ goal.number }}" {% if sdg == goal.number|stringformat:"s" %}selected{% endif %}>
+                  SDG {{ goal.number }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm w-100">Apply Filters</button>
+            {% if q or sdg or category %}
+            <a href="{% url 'news:list' %}" class="btn btn-outline-secondary btn-sm w-100 mt-2">Clear</a>
+            {% endif %}
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- News grid -->
+    <div class="col-lg-9">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0">
+          {% if q %}Results for "{{ q }}"{% else %}All News{% endif %}
+        </h5>
+        <small class="text-muted">{{ page_obj.paginator.count }} article{{ page_obj.paginator.count|pluralize }}</small>
+      </div>
+
+      {% if page_obj.object_list %}
+      <div class="row g-3">
+        {% for item in page_obj %}
+        <div class="col-md-6">
+          <div class="card h-100 border-0 shadow-sm news-card">
+            {% if item.featured_image %}
+            <img src="{{ item.featured_image.url }}" class="card-img-top" style="height:160px;object-fit:cover" alt="">
+            {% endif %}
+            <div class="card-body d-flex flex-column">
+              {% for sdg in item.sdg_goals.all|slice:":3" %}
+              <span class="badge me-1 mb-2" style="background-color:{{ sdg.get_color }};font-size:0.65rem">SDG {{ sdg.number }}</span>
+              {% endfor %}
+              <h6 class="fw-semibold">
+                <a href="{{ item.get_absolute_url }}" class="text-decoration-none text-dark">{{ item.title }}</a>
+              </h6>
+              <p class="small text-muted flex-grow-1">{{ item.summary|truncatechars:130 }}</p>
+              <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted"><i class="bi bi-building me-1"></i>{{ item.institution.short_name|default:item.institution.name|truncatechars:20 }}</small>
+                <small class="text-muted">{{ item.published_at|date:"d M Y" }}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if page_obj.has_other_pages %}
+      <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+          {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ q }}&sdg={{ sdg }}&category={{ category }}">Previous</a>
+          </li>
+          {% endif %}
+          {% for num in page_obj.paginator.page_range %}
+          <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+            <a class="page-link" href="?page={{ num }}&q={{ q }}&sdg={{ sdg }}&category={{ category }}">{{ num }}</a>
+          </li>
+          {% endfor %}
+          {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ q }}&sdg={{ sdg }}&category={{ category }}">Next</a>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+
+      {% else %}
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-search" style="font-size:3rem;opacity:0.3"></i>
+        <p class="mt-3">No news found matching your filters.</p>
+        <a href="{% url 'news:list' %}" class="btn btn-outline-primary btn-sm">Clear Filters</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Login - PREMs News Portal{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-5">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-5">
+          <div class="text-center mb-4">
+            <i class="bi bi-mortarboard-fill text-primary" style="font-size:2.5rem"></i>
+            <h4 class="fw-bold mt-2">PREMs News Portal</h4>
+            <p class="text-muted small">Sign in to your institution account</p>
+          </div>
+          <form method="post">
+            {% csrf_token %}
+            {% crispy form %}
+          </form>
+        </div>
+      </div>
+      <p class="text-center text-muted small mt-3">
+        Contact your administrator if you need access.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
